@@ -1,0 +1,111 @@
+<?php
+
+//dd($field_details);
+$visible_fields=$field_details['visible_fields'];
+$editable_fields=$field_details['editable_fields'];
+$field_attr=$field_details['field_attr'];
+//dd($field_attr);
+$options=$field_details['select_options'] ?? null;
+//$options=isset($field_details['select_options']);
+
+$field_name=["INP_002","INP_003","INP_004","INP_005","INP_042","INP_046","INP_047"];
+if(isset($edit_id) && count($travelling_details)){
+    $loop_count = count($travelling_details);
+
+}else{
+    $loop_count = 1;
+}
+$additional_attributes = [];
+if(Auth::User()->has_any_role_code(['TRV_EXT']) && !in_array($status_id, ['0','STAT_01']))
+{
+    $visible_fields = array_merge($visible_fields, ['travel_extend_btn']);
+    $editable_fields = array_merge($editable_fields, ['INP_004','INP_005']);
+    if(in_array($travel_type_id, ['TRV_01_01', 'TRV_02_01', 'TRV_03_01']))
+    {
+        $additional_attributes['disabled'] = 'true';
+    }
+}
+?>
+<div class="table-section" id="traveling_section">
+    {{-- <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Travelling details</h3>
+            </div>
+        </div>
+    </div> --}}
+    <div class="container-fluid table-content">
+        <div class="tr_details_container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        @foreach($field_attr as $inp_key=>$fields)
+                            @if(in_array($inp_key,$field_name))
+                                @if(in_array($inp_key, $visible_fields))
+                                    <th style="width:15%" class="{{ in_array($inp_key, $editable_fields) ? 'required-field' : '' }}">{{$fields['lable_name']}}</th>
+                                @endif
+                            @endif
+                        @endforeach
+                        @if(!isset($request_details) || $request_details->status_id=="STAT_01")
+                        <th style="display:none;width:5%" id="action-th">Action</th>
+                        @endif
+                    </tr>
+                </thead>
+                <tbody id="tr_details_row">
+                    @for($row=0; $row<$loop_count; $row++)
+                        <tr id="travelling_details-{{$row + 1}}" class='travelling_details' tr_row_id="{{isset($travelling_details) ? $travelling_details[$row]->travelling_details_row_id:''}}">
+                        @foreach($field_attr as $inp_key=>$fields)
+                            @if(in_array($inp_key,$field_name))
+                                @if(in_array($inp_key, $visible_fields))
+                                    <?php $attributes = json_decode($fields['attributes'], true);?>
+                                    <td class="{{$attributes['input_class']}}">
+                                        @if(in_array($inp_key, $editable_fields))
+                                            <input type="hidden" name="hidden_{{$fields['input_name']}}" value="{{isset($travelling_details)? $travelling_details[$row]->{$fields['input_name']} : '' }}">
+                                            @if($attributes['type'] == 'select')
+                                                {{ Form::select($fields['input_name'], ['' => 'Select'] +$options[$fields['input_name']],
+                                                    isset($travelling_details)? $travelling_details[$row]->{$fields['input_name']}:null, 
+                                                    $attributes) }}
+                                            @elseif($attributes['type'] == 'text')
+                                                @php
+                                                    if($inp_key == "INP_005")
+                                                        $attributes = $attributes+$additional_attributes;
+                                                @endphp
+                                                {{ Form::text($fields['input_name'],
+                                                    isset($travelling_details)? $travelling_details[$row]->{$fields['input_name']}:null,
+                                                    $attributes); }} 
+                                            @endif
+                                        @else
+                                            @if(in_array($fields['input_name'],['from_country','to_country','from_city','to_city']))
+                                                {{isset($travelling_details[$row]->{$fields['input_name']})? $travelling_details[$row]->{$fields['input_name'].'_name'}:'-'}}
+                                            @else
+                                                {{ isset($travelling_details) && $fields['input_name'] == 'visa_type_code' ? $travelling_details[$row]->visa_name : ($travelling_details[$row]->{$fields['input_name']} ?? '-') }}                                            @endif
+                                        @endif  
+                                    </td>
+                                @endif
+                            @endif
+                        @endforeach
+                        @if(!isset($request_details) || $request_details->status_id=="STAT_01")
+                            <td class="action-cell" style="display:none">
+                                <img src='/images/delete.svg' class="remove_img disabled" id="delete_btn" />
+                            </td>
+                        @endif    
+                        </tr>
+                    @endfor
+                </tbody>
+                @if(!isset($request_details) || $request_details->status_id=="STAT_01")
+                <tfoot class="foot-section">
+                    <tr>
+                        <td colspan="8" class="action-cell" style="display:none">
+                            <img src='/images/add.svg' class="add_img disabled" id="add_btn" />
+                        </td>
+                    </tr>
+                </tfoot>
+                @endif
+            </table>
+            @if(in_array('travel_extend_btn', $visible_fields))
+                <button id="travel_extend_btn" value="travel_extend" class="primary-button" style="display:block; margin: 5px 0 0 auto;" disabled>Extend</button>
+            @endif
+        </div>
+        <div class="visa_error"></div>
+    </div>
+</div>

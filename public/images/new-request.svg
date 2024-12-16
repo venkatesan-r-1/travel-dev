@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="38" height="24" viewBox="0 0 38 24">
+  <g id="new-request" transform="translate(-3.2 -6)">
+    <rect id="Rectangle_304" data-name="Rectangle 304" width="38" height="24" rx="2" transform="translate(3.2 6)" fill="#fff" opacity="0.12"/>
+    <g id="plus" transform="translate(14.2 6)">
+      <path id="Path_417" data-name="Path 417" d="M13.577,9.077H8.923V4.423a.423.423,0,0,0-.846,0V9.077H3.423a.423.423,0,1,0,0,.846H8.077v4.654a.423.423,0,1,0,.846,0V9.923h4.654a.423.423,0,0,0,0-.846Z" transform="translate(0 3)" fill="#fff" stroke="#fff" stroke-width="1"/>
+    </g>
+  </g>
+</svg>

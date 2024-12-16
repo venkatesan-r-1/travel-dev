@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 18">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #c6cccf;
+      }
+    </style>
+  </defs>
+  <g id="calendar-full" transform="translate(0 -1)">
+    <path id="Path_22" data-name="Path 22" class="cls-1" d="M18.5,2H16V1.5a.5.5,0,0,0-1,0V2H5V1.5a.5.5,0,0,0-1,0V2H1.5A1.5,1.5,0,0,0,0,3.5v14A1.5,1.5,0,0,0,1.5,19h17A1.5,1.5,0,0,0,20,17.5V3.5A1.5,1.5,0,0,0,18.5,2ZM1.5,3H4V4.5a.5.5,0,0,0,1,0V3H15V4.5a.5.5,0,0,0,1,0V3h2.5a.5.5,0,0,1,.5.5V6H1V3.5A.5.5,0,0,1,1.5,3Zm17,15H1.5a.5.5,0,0,1-.5-.5V7H19V17.5A.5.5,0,0,1,18.5,18Z"/>
+    <path id="Path_23" data-name="Path 23" class="cls-1" d="M7.5,10h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_24" data-name="Path 24" class="cls-1" d="M10.5,10h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_25" data-name="Path 25" class="cls-1" d="M13.5,10h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_26" data-name="Path 26" class="cls-1" d="M16.5,10h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_27" data-name="Path 27" class="cls-1" d="M4.5,12h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_28" data-name="Path 28" class="cls-1" d="M7.5,12h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_29" data-name="Path 29" class="cls-1" d="M10.5,12h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_30" data-name="Path 30" class="cls-1" d="M13.5,12h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_31" data-name="Path 31" class="cls-1" d="M16.5,12h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_32" data-name="Path 32" class="cls-1" d="M4.5,14h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_33" data-name="Path 33" class="cls-1" d="M7.5,14h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_34" data-name="Path 34" class="cls-1" d="M10.5,14h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_35" data-name="Path 35" class="cls-1" d="M13.5,14h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_36" data-name="Path 36" class="cls-1" d="M16.5,14h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_37" data-name="Path 37" class="cls-1" d="M4.5,16h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_38" data-name="Path 38" class="cls-1" d="M7.5,16h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_39" data-name="Path 39" class="cls-1" d="M10.5,16h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_40" data-name="Path 40" class="cls-1" d="M13.5,16h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+    <path id="Path_41" data-name="Path 41" class="cls-1" d="M16.5,16h-1a.5.5,0,0,1,0-1h1a.5.5,0,0,1,0,1Z"/>
+  </g>
+</svg>

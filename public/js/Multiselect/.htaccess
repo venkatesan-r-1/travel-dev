@@ -1,0 +1,5 @@
+Options -Indexes
+RewriteEngine on
+RewriteCond %{HTTP_REFERER} !^https://reimbursementstage.aspiresys.com [NC]
+RewriteCond %{HTTP_REFERER} !^https://reimbursementstage.aspiresys.com/$ [NC]
+RewriteRule \.(png|jpg|jpeg|bmp|msg|html|xlsx|xls|doc|docx)$ - [F]

@@ -1,0 +1,106 @@
+.pdf *{
+    box-sizing: content-box;
+    all: none !important;
+}
+
+@-moz-document url-prefix(){
+    .pdf{
+        font-size: 10px !important;
+        width: 105%;
+    }
+}
+
+/* Dimension of A4 size paper */
+.pdf{
+    display: none;
+    font-family: sans-serif;
+    font-size: 11px;
+    line-height: 1.5;
+    margin: 0 !important;
+    width: 595.28px;
+    letter-spacing: normal !important;
+    position: relative;
+}
+
+.pdf-header{
+    display: none;
+    width: 100%;
+    height: fit-content;
+    /* padding-top: 10px; */
+    /* margin-right: 50px; */
+}
+
+.pdf-logo{
+    width: 100px;
+    height: 50px;
+    margin-left: 90%;
+    margin-top: 1%;
+    transform: translate(-100%);
+}
+
+.pdf-digi-sign{
+    width: 200px;
+    height: 50px;
+}
+
+.pdf-footer{
+    display: none;
+    border-bottom: 10px solid #8C42AD;
+    font-size: 7px;
+}
+
+.pdf-footer-table{
+    display: flex;
+    justify-content: space-evenly;
+    border-left: 10px solid #8C42AD;
+    padding: 0 10%;
+}
+
+.pdf-footer-website{
+    text-align: center;
+}
+
+.pdf-section{
+    padding: 0 10%;
+}
+
+.pdf-paragraph{
+    text-align: justify;
+}
+
+.pdf-list-items{
+    display: list-item;
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin-left: 15px;
+    padding-left: 15px;
+    margin-top: 15px;
+}
+
+.pdf a{
+    text-decoration: none;
+}
+
+.pdf-list-items.optional{
+    display: none;
+}
+
+.pdf .actual, .pdf .immigration{
+    display: none;
+}
+
+.pdf-text-bold{
+    font-weight: 900 !important;
+}
+
+.pdf-watermark{
+    display: none;
+    width: 316px !important;
+    height: 359px !important;
+}
+
+.pdf-footer-vr{ border-right: 1px solid #8C42AD; }
+
+.pdf-footer-content{
+    word-wrap: break-word;
+}

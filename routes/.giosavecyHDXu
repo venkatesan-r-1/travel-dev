@@ -1,0 +1,71 @@
+<?php
+
+use App\Http\Controllers\DetailsProvider;
+use App\Http\Controllers\testController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\TravelRequest;
+
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+Route::get('auth/login', [LoginController::class, 'login']);
+Route::get('auth/logout', [LoginController::class, 'logout']);
+Route::get('test', [LoginController::class, 'test']);
+
+Route::Post('/travel_request',[TravelRequest::class, 'request_redirect']);
+Route::Post('/travel_request_actions',[TravelRequest::class, 'save_or_update']);
+Route::get('request', [TravelRequest::class, 'request_page']);
+Route::get('visa_request', [TravelRequest::class, 'request_page']);
+
+
+Route::post('load_project', [DetailsProvider::class, 'load_project']);
+Route::post('load_customer_du', [DetailsProvider::class, 'load_customer_du']);
+Route::post('/load_city', [DetailsProvider::class, 'load_city']);
+Route::post('list_respective_user_proof_details', [DetailsProvider::class, 'list_respective_user_proof_details']);
+Route::post('budget_verification', [DetailsProvider::class, 'budget_verification']);
+
+Route::post('load_related_select_options', [DetailsProvider::class, 'load_related_select_options']);
+Route::get('/home', [DetailsProvider::class, 'get_home_details']);
+Route::get('/travel_reimbursement', [DetailsProvider::class, 'get_travel_reimbursement']);
+Route::get('/workbench_details', [DetailsProvider::class, 'get_workbench_details']);
+Route::get('/report', [DetailsProvider::class, 'get_report_details']);
+Route::get('/traveldesk_details', [DetailsProvider::class, 'get_travel_desk_details']);
+Route::get('/review', [DetailsProvider::class, 'get_bfreview_details']);
+Route::get('/approver_details', [DetailsProvider::class, 'get_approver_details']);
+
+
+Route::post('/save_uploaded_file', [TravelRequest::class, 'save_uploaded_file']);
+Route::post('/delete_uploaded_file', [TravelRequest::class, 'delete_uploaded_file']);
+Route::get('anticipated_cost', [TravelRequest::class, 'anticipated_cost']);
+Route::get('request_full_details',[DetailsProvider::class,'request_full_details']);
+Route::get('request_full_details/{id}',[TravelRequest::class,'request_page']);
+Route::get('test_inputs',[DetailsProvider::class,'fields_visibility_editablity_details']);
+Route::get('get_request_for',[DetailsProvider::class,'get_request_for']);
+//Route::get('/full_details',[DetailsProvider::class,'']);
+
+Route::post('/forex_actions', [DetailsProvider::class, 'forex_actions']);
+
+Route::post('/load_project_details', [DetailsProvider::class, 'load_project_details']);
+Route::post('/load_from_city', [DetailsProvider::class, 'load_from_city']);
+
+Route::get('/domestic_request',[TravelRequest::class,'domestic_accesss']);
+Route::post('route_details', [DetailsProvider::class, 'route_details']);
+Route::get('/show_budget_error',[DetailsProvider::class, 'show_budget_error']);
+
+Route::Post('/department_du_validation',[DetailsProvider::class, 'department_du_validation']);
+
+Route::post('/load_user_other_details', [TravelRequest::class, 'load_user_other_details']);
+Route::post('/extend_travel_dates', [TravelRequest::class, 'extend_travel_dates']);

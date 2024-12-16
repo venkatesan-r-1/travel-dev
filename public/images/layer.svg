@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="43" height="43" viewBox="0 0 43 43">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#8c42ad" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#8c42ad"/>
+    </linearGradient>
+    <filter id="Rectangle_26" x="0" y="0" width="43" height="43" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Layer_2" data-name="Layer 2" transform="translate(11 8)">
+    <g transform="matrix(1, 0, 0, 1, -11, -8)" filter="url(#Rectangle_26)">
+      <rect id="Rectangle_26-2" data-name="Rectangle 26" width="25" height="25" rx="12.5" transform="translate(9 6)" fill="url(#linear-gradient)"/>
+    </g>
+    <g id="upload">
+      <rect id="Rectangle_332" data-name="Rectangle 332" width="13" height="1.286" rx="0.643" transform="translate(17 5.786) rotate(180)" fill="#fff"/>
+      <rect id="Rectangle_333" data-name="Rectangle 333" width="3.429" height="1.393" rx="0.696" transform="translate(17 4.929) rotate(90)" fill="#fff"/>
+      <rect id="Rectangle_334" data-name="Rectangle 334" width="3.429" height="1.393" rx="0.696" transform="translate(5.393 4.929) rotate(90)" fill="#fff"/>
+      <path id="Path_452" data-name="Path 452" d="M7.544,12.987c-.234,0-.4.01-.537-.206-.246-.379-.046-.753.283-1.037l2.972-2.571a.664.664,0,0,1,.877,0L14.11,11.59c.333.273.518.624.283,1.01-.114.187-.283.143-.479.181s-.535-.3-.7-.436l-2.583-2.022-2.7,2.458a.6.6,0,0,1-.392.206Z" transform="translate(-0.207 -1.269)" fill="#fff"/>
+      <path id="Path_453" data-name="Path 453" d="M11.7,19.571a.789.789,0,0,1-.7-.857V11.857A.789.789,0,0,1,11.7,11a.789.789,0,0,1,.7.857v6.857A.789.789,0,0,1,11.7,19.571Z" transform="translate(-1.243 -2.429)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

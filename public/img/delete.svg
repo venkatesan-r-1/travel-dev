@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="37" height="37" viewBox="0 0 37 37">
+  <defs>
+    <filter id="Ellipse_36" x="0" y="0" width="37" height="37" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-opacity="0.212"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="delete" transform="translate(6 5)">
+    <g transform="matrix(1, 0, 0, 1, -6, -5)" filter="url(#Ellipse_36)">
+      <circle id="Ellipse_36-2" data-name="Ellipse 36" cx="12.5" cy="12.5" r="12.5" transform="translate(6 5)" fill="#fff"/>
+    </g>
+    <g id="trash" transform="translate(7.237 4.825)">
+      <path id="Path_445" data-name="Path 445" d="M11.474,1.4H9.018V1.053A1.054,1.054,0,0,0,7.965,0h-1.4A1.054,1.054,0,0,0,5.509,1.053V1.4H3.053A1.054,1.054,0,0,0,2,2.456v.7a1.054,1.054,0,0,0,.7.992v8.832a1.054,1.054,0,0,0,1.053,1.053h7.018a1.054,1.054,0,0,0,1.053-1.053V4.15a1.054,1.054,0,0,0,.7-.992v-.7A1.054,1.054,0,0,0,11.474,1.4ZM6.211,1.053A.351.351,0,0,1,6.561.7h1.4a.351.351,0,0,1,.351.351V1.4H6.211Zm4.561,12.281H3.754a.351.351,0,0,1-.351-.351V4.211h7.719v8.772A.351.351,0,0,1,10.772,13.333ZM11.825,3.158a.351.351,0,0,1-.351.351H3.053A.351.351,0,0,1,2.7,3.158v-.7a.351.351,0,0,1,.351-.351h8.421a.351.351,0,0,1,.351.351Z" transform="translate(-2)" fill="#8c42ad" stroke="#8c42ad" stroke-width="0.3"/>
+      <path id="Path_446" data-name="Path 446" d="M12.351,7A.351.351,0,0,0,12,7.351v7.018a.351.351,0,1,0,.7,0V7.351A.351.351,0,0,0,12.351,7Z" transform="translate(-4.982 -2.088)" fill="#8c42ad" stroke="#8c42ad" stroke-width="0.3"/>
+      <path id="Path_447" data-name="Path 447" d="M9.351,7A.351.351,0,0,0,9,7.351v7.018a.351.351,0,1,0,.7,0V7.351A.351.351,0,0,0,9.351,7Z" transform="translate(-4.088 -2.088)" fill="#8c42ad" stroke="#8c42ad" stroke-width="0.3"/>
+      <path id="Path_448" data-name="Path 448" d="M6.351,7A.351.351,0,0,0,6,7.351v7.018a.351.351,0,1,0,.7,0V7.351A.351.351,0,0,0,6.351,7Z" transform="translate(-3.193 -2.088)" fill="#8c42ad" stroke="#8c42ad" stroke-width="0.3"/>
+    </g>
+  </g>
+</svg>

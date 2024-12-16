@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36.269" height="36.27" viewBox="0 0 36.269 36.27">
+  <g id="warning" transform="translate(-163 -340)">
+    <g id="Rectangle_332" data-name="Rectangle 332" transform="translate(167 344)" fill="#ffd75f" stroke="#fff" stroke-width="4">
+      <rect width="28.269" height="28.27" rx="14.134" stroke="none"/>
+      <rect x="-2" y="-2" width="32.269" height="32.27" rx="16.134" fill="none"/>
+    </g>
+    <text id="_" data-name="!" transform="translate(178.634 365.8)" fill="#fff" font-size="20" font-family="Montserrat-SemiBold, Montserrat" font-weight="600"><tspan x="0" y="0">!</tspan></text>
+  </g>
+</svg>

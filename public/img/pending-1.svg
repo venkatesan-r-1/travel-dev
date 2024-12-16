@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36.27" height="36.27" viewBox="0 0 36.27 36.27">
+  <g id="pending-1" transform="translate(-163 -340)">
+    <g id="Rectangle_329" data-name="Rectangle 329" transform="translate(167 344)" fill="#2e4496" stroke="#fff" stroke-width="4">
+      <rect width="28.27" height="28.27" rx="14.135" stroke="none"/>
+      <rect x="-2" y="-2" width="32.27" height="32.27" rx="16.135" fill="none"/>
+    </g>
+    <g id="Layer_2" data-name="Layer 2" transform="translate(169 346.6)">
+      <g id="bookmark" transform="translate(0.4 -0.2)">
+        <rect id="Rectangle_1" data-name="Rectangle 1" width="24" height="24" transform="translate(-0.4 -0.4)" fill="#fff" opacity="0"/>
+        <path id="Path_1" data-name="Path 1" d="M5.972,18.846a.888.888,0,0,1-.9-.877L4.94,5.106a1.957,1.957,0,0,1,.54-1.429A2.049,2.049,0,0,1,6.9,3.044L15.5,3a2.013,2.013,0,0,1,2,2.027l.126,12.862a.873.873,0,0,1-.44.763.915.915,0,0,1-.9,0L11.178,15.88,6.43,18.714a1.1,1.1,0,0,1-.458.132Zm5.17-4.869a1.015,1.015,0,0,1,.449.1l4.227,2.29L15.71,5.009c0-.175-.117-.3-.188-.29L6.905,4.8c-.072,0-.171.114-.171.29l.108,11.318L10.684,14.1a.968.968,0,0,1,.458-.123Z" transform="translate(0.326 0.712)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

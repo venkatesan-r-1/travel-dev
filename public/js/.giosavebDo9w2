@@ -1,0 +1,1062 @@
+var hidden_to_city = [];
+var proof_details_visible_fields = {};
+$(document).ready(function(){
+    if($('#edit_id').val()){
+        // to hide the proof details action for self request
+        if(['RF_01','RF_05'].includes($('#request_for').val()))
+        {
+            $(document).find('#proof-details-table tfoot').hide();
+            $(document).find('.proof-action-btn-grp').hide();
+        }
+        else
+        {
+            $(document).find('#proof-details-table tfoot').show();
+            $(document).find('.proof-action-btn-grp').show();
+        }
+        $('#proof-details-table').find("[name='proof_request_for']").each(function () {
+            if(['RF_01','RF_05'].includes($(this).val())){
+                $(this).closest('tr').find('.proof-action-btn-grp').hide();
+            }
+        });
+        $('#proof-details-table').find(".not_required").each(function () {
+            $(this).attr('disabled',true);
+        });
+        // if(((".request_for").val()!='RF_05') || ((".request_for").val()!='RF_01')){
+        //     $('.country').removeAttr("disabled");
+
+        // }
+        
+            if($.inArray($('.request_for').find(":selected").val(),['RF_05','RF_01'])<0){
+               // alert('test');
+        $('.country').removeAttr("disabled");
+        
+    
+      }else{
+        var default_country=$('#default_country').val();
+        console.log(default_country);
+        $('.country').val(default_country).change();
+        $('.country').attr("disabled",true);
+      }
+        dateFieldChangeBasedONTraveltype();
+        travelDates();
+        // $('.select-plugin').select2();
+        var hidden_from_date = [];var hidden_to_date = [];
+        $('input[name=hidden_to_city]').each(function(){
+            hidden_to_city.push($(this).val());
+        }) 
+        $('input[name=hidden_from_date]').each(function(){
+            hidden_from_date.push($(this).val());
+        }) 
+        $('input[name=hidden_to_date]').each(function(){
+            hidden_to_date.push($(this).val());
+        }) 
+        $('input[name="from_date"]').each(function(k,v){
+            $(this).datepicker("setDate",hidden_from_date[k]);
+        })
+        $('input[name="to_date"]').each(function(k,v){
+            $(this).datepicker("setDate",hidden_to_date[k]);
+        })
+        $('#tr_details_row  > tr').each(function(index, tr) { 
+            var country_val=$(this).find(".to_country select").val();
+            var current_select = $(this).find('.to_city select');
+            if(country_val){
+                $.ajaxSetup({
+                headers: {
+               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.ajax({
+                type:'post',
+                url:'/load_city',
+                dataType: 'JSON',
+                data:{country:country_val},
+                success:function(response){
+                    $('.ui-wait').hide();
+                    var city=response.city;
+                    //console.log(city);
+                   // visa_details=response.visa_details;
+                    
+                    
+                 
+    
+                   current_select.find('option:not(:first-child)').remove();
+                    console.log(current_select);
+                    $.each(city, function(key, value) {
+                       
+                        current_select.append("<option value="+key+" >"+value+"</option>");
+                    });
+    
+                },
+                error:function(error){
+                    $('.ui-wait').hide();
+                    console.log(error);
+                }
+            });
+        }
+           // alert(tr);
+         });
+       
+           // $(document).find('.to_country select').trigger('change');
+        // $(document).find('select[name=to_city]').each(function(k,v){
+        //     // $("#customer_name option[value='"+key+"']").attr('selected',true);
+        //     console.log($(this));
+        //     console.log($(this).find("option"));
+        //     // $(this).find("option[value='"+hidden_to_city[k]+"']").attr('selected',true);
+        //     $(this).val(hidden_to_city[k]).change();
+        //     // $(this).trigger('change');
+        // })
+    }
+
+  //tr  console.log('test1');
+    // if($.inArray($('.request_for').find(":selected").val(),['RF_05','RF_01'])){
+ 
+    //     $('.country').removeAttr("disabled");
+        
+    
+    //   }else{
+    //     var default_country=$('#default_country').val();
+    //     console.log(default_country);
+    //     $('.country').val(default_country).change();
+    //     $('.country').attr("disabled",true);
+    //   }
+    if($(document).find('#ticket_required_1').is(':checked')){
+        // $(document).find('input[name="family_traveling"]').removeAttr("disabled");
+        $('input[name="family_traveling"]').removeAttr("disabled");
+        $('input[name="accommodation_required"]').removeAttr("disabled");
+        $('input[name="insurance_required"]').removeAttr("disabled");
+    }
+
+    if($(document).find('#ticket_required_2').is(':checked')){
+        $('#preferred_address').val('');
+        $('#preferred_address').prop("disabled", true);
+        //$('input[name="family_traveling"]').removeAttr("disabled");
+        $('input[name="family_traveling"]').closest('.radio_required').find('.alert_required').hide();
+        $('input[name="accommodation_required"]').closest('.radio_required').find('.alert_required').hide();
+        $('input[name="insurance_required"]').closest('.radio_required').find('.alert_required').hide();
+        $('input[name="family_traveling"]').prop("checked",false);
+        $('input[name="accommodation_required"]').prop("checked",false);
+        $('input[name="insurance_required"]').prop("checked",false);
+        $('input[name="accommodation_required"]').attr("disabled",true);
+        $('input[name="insurance_required"]').attr("disabled",true);
+        $('input[name="family_traveling"]').attr("disabled",true);
+        $('#no_child').attr("disabled",true);
+        $('#no_child').css("display","none");
+        $('#no_adult').attr("disabled",true);
+        $('#no_adult').css("display","none");
+    }
+    if($(document).find('#accommodation_1').is(':checked')){
+        //$('input[name="family_traveling"]').removeAttr("disabled");
+        $('#preferred_address').prop("disabled", false);
+    
+        }
+        if($(document).find('#accommodation_2').is(':checked')){
+          //$('input[name="family_traveling"]').removeAttr("disabled");
+          $('#preferred_address').val('');
+          $('#preferred_address').prop("disabled", true);
+      
+          }
+          if($(document).find('#forex_required_1').is(':checked')){
+            $('#currency').removeAttr("disabled");
+            //console.log('t');
+           // alert('test');
+            
+            }
+            if($(document).find('#forex_required_2').is(':checked')){
+                //$('input[name="family_traveling"]').removeAttr("disabled");
+                $('#currency').val('').change();
+                //$('#currency').prop("checked",false);
+                $('#currency').parent().find('.select2-container').removeClass("has_error");
+                $('#currency').attr("disabled",true);
+                }
+                if($(document).find('#family_travel_1').is(':checked')){
+                    $('#no_child').removeAttr("disabled");
+                    $('#no_child').css("display","block");
+                    $('#no_adult').removeAttr("disabled");
+                    $('#no_adult').css("display","block");
+                    
+                    }
+                    if($(document).find('#family_travel_2').is(':checked')){
+                        $('#no_child').attr("disabled",true);
+                        $('#no_child').css("display","none");
+                        $('#no_adult').attr("disabled",true);
+                        $('#no_adult').css("display","none");
+                        
+                        }
+    $('body').on('focus',".date", function(){
+        $(this).datepicker({
+         format: 'dd-M-yyyy',
+         autoclose: true
+       });
+      })
+    $('#proof-details-table').find("[name='proof_request_for']").each(function () {
+        if($(this).val() == "RF_01"  || $(this).val() == "RF_05"){
+            $(this).closest('td').find('.proof-details-fields').each( function () { $(this).attr('disabled',true) } )
+        }
+    })
+	$('.select-plugin').select2();
+        //fetchProofDetails($('#request_for').val());
+
+         $(".select-plugin").select2().on('select2:open', function(e){
+             $('.select2-search__field').attr('placeholder', 'Search');
+         });
+
+         $('.travel_request,.request_for,.work_from').select2({
+             minimumResultsForSearch: -1
+         });
+         var defau_req="MOD_02";
+         if($('#travel_request_for').val()){
+            defau_req=$('#travel_request_for').val();
+         }
+         if($('#edit_id').val()==""){
+            //$('.ui-wait').show();
+            $.ajaxSetup({
+               headers: {
+                   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+               }
+           });
+           $.ajax({
+               type:'POST',
+               data:{module:defau_req},
+               url:'/travel_request', 
+               success:function(data){
+                   $('.travel_common').html(data);
+                   projectLoad();
+                   $('.ui-wait').hide();
+                   travelDates();
+                   $('.select-plugin').select2();
+                },
+               error:function()
+               {
+                   $('.ui-wait').hide();
+                   alert('Error occured..');
+               }
+           });
+
+         }
+    // if(($(document).find(".request_for").val()!='RF_05') || ($(document).find(".request_for").val()!='RF_01')){
+    //   //  console.log('test');
+   
+    //    // $('.country').removeAttr("disabled");
+    
+    //   }else{
+    //     var default_country=$('#default_country').val();
+        
+    //     $('.country').val(default_country).change();
+    //     $('.country').attr("disabled",true);
+    
+    //   }
+
+}) 
+$(document).on('input','#no_adult', function () {
+    var adult_dep='';
+if ($('#no_child').val()!== '') {
+    adult_dep=9-$('#no_child').val();
+   // alert(child_dep);
+
+}else{
+    adult_dep=9
+}
+
+var value = this.value;
+// alert(value);
+if (value !== '') {
+    value = parseFloat(value);
+    
+    if (value < 0)
+        this.value = 0;
+    else if (value > adult_dep)
+        this.value = adult_dep;
+}
+
+});
+$(document).on('input','#no_child', function () {
+var child_dep='';
+if ($('#no_adult').val()!== '') {
+    child_dep=9-$('#no_adult').val();
+   // alert(child_dep);
+
+}else{
+    child_dep=9;
+}
+
+var value = this.value;
+// alert(value);
+if (value !== '') {
+    value = parseFloat(value);
+    
+    if (value < 0)
+        this.value = 0;
+    else if (value > child_dep)
+        this.value = child_dep;
+}
+
+});
+$(document).on('input', '#no_adult, #no_child', function () {
+let value = $(this).val();
+if(!/^[0-9]$/.test(value))
+$(this).val( value.slice(0,-1) );
+});
+    $(document).on('change','#department',function(){ 
+        //projectLoad();
+    });
+    $(document).on('change','#project_name',function(){ 
+        //customerLoad();
+    });
+
+
+    $(document).on('click', '#add_btn', function () {
+        addNewRowTravel();
+    });
+    $(document).on('click', '.tr_details_container #delete_btn', function () {
+      var row_count=$('#tr_details_row tr').length;
+      if(row_count>1){
+          if(confirm('Are you sure you want to remove?')){
+              $(this).closest('tr').remove();
+          }
+      }
+      else{
+          alert("Sorry!! Atleast one row should be present to raise a travel request.");
+      }
+});
+$(document).on('change','#project_name',function(){ 
+    //alert("Working");
+    load_details();
+});
+
+/*
+    To load city based on the country selected
+    Added by monisha.thirumalai
+*/
+    $(document).on('change','.to_country select',function(){
+        $('.ui-wait').show();
+        var country_value=$(this).val();
+        var current_row = $(this).closest('tr');
+        var request_for=$('#request_for').val();
+        current_row.find('input[name="visa_number"]').val('');
+        current_row.find('.visa_type select option').removeAttr('selected');
+        current_row.find('.visa_type select').val('');
+        current_row.find('input[name="visa_number"]').attr('readonly',false)
+        current_row.find('.visa_type select').attr('disabled',false);
+        $('.visa_error').html('').removeAttr('style').css('background-color', '');
+    	$('.request_action_buttons').prop('disabled', false);
+
+        if(country_value){
+            $.ajaxSetup({
+            headers: {
+           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            type:'post',
+            url:'/load_city',
+            dataType: 'JSON',
+            data:{country:country_value},
+            success:function(response){
+                $('.ui-wait').hide();
+                city=response.city;
+                visa_details=response.visa_details;
+                var current_select = current_row.find('.to_city select');
+                var current_visa_number=current_row.find('input[name="visa_number"]')
+                var current_visa_type=current_row.find('.visa_type select')
+
+                current_select.find('option:not(:first-child)').remove();
+                $.each(city, function(key, value) {
+                    var selected_val = '';
+                    if($.inArray(key, hidden_to_city) !== -1){
+                        selected_val = 'selected';
+                    }
+                    current_select.append("<option value=" + key + " "+selected_val+">" + value + "</option>");
+                });
+                if(visa_details.length == 0 && request_for=="RF_05"){
+                    //alert('Visa details not found for the respective country');
+                    var errorMessage = "Visa details not found for the respective country. Please go to visa tab and make a new request";
+                    $(".visa_error").html(errorMessage).css({"text-align": "center",
+                    "padding": "10px",
+                    "display":"block",
+                    "background-color": "#efe7f4",
+                    "margin-top": "20px"});
+                    if($('.visa_error').html())
+                        $('.request_action_buttons').prop('disabled', true);
+                }
+                else if(visa_details.length !== 0 && request_for=="RF_05"){
+                $.each(visa_details, function(key, value) {
+                    current_visa_number.append(value).attr("value",value).text(value).val(value);
+                    current_visa_type.find('option[value="'+key+'"]').attr('selected',true);
+                    current_visa_type.select2().trigger('change');
+                    current_visa_type.attr('disabled',true);
+                    current_visa_number.attr('readonly',true);
+                });
+                }
+            },
+            error:function(error){
+                $('.ui-wait').hide();
+                console.log(error);
+            }
+        });
+    }
+})
+
+$(document).on('change','.travel_request', function(){
+   // alert('rt');
+     $('.ui-wait').show();
+    var request_type=$(this).find(":selected").val();
+    if(($("#default_travel_flag").val()=="1")&&request_type=='MOD_02'){
+        $("#default_travel_flag").val(0);
+       // alert('test');
+    }else if(request_type!=""){
+        $("#default_travel_flag").val(0);
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+        type:'POST',
+        data:{module:request_type},
+        url:'/travel_request', 
+        success:function(data){
+            
+            $('.travel_common').html(data);
+            $('#travel_type').val("").change();
+            projectLoad();
+            travelDates();
+            request_for(request_type);
+            
+            $('.select-plugin').select2();
+            $('.ui-wait').hide();
+        },
+        error:function()
+        {
+            $('.ui-wait').hide();
+            alert('Error occured..');
+        }
+    });
+}
+$('.ui-wait').hide();
+}) 
+$(document).on('change','#travel_type',function(){
+    dateFieldChangeBasedONTraveltype();
+});
+
+$(document).on("change", '.from_city select',function () {
+    $(this).closest('tr').find(".to_city select").val('');
+    var selectedFromCity = $(this).val();
+    var current_row = $(this).closest('tr');
+    current_row.find(".to_city option").prop("disabled", false);
+    current_row.find(".to_city option[value='" + selectedFromCity + "']").prop("disabled", true);
+    current_row.find(".to_city select").select2().trigger('change');;
+});
+
+/**
+ * Changes made by venkatesan.raj travel proof details
+ */
+//To load proof details when request for is changed
+$(document).on('change','#request_for', function () {
+    fetchProofDetails($(this).val());
+    $("#tr_details_row").find('input[type=text],select').val('');
+    $("#tr_details_row").find('.select-plugin').select2();
+    $('input[name="visa_number"]').prop("readonly", false);
+    $('input[name="visa_type"]').prop("disabled", false);
+    $("#tr_details_row").find("tr:gt(0)").remove();
+    $('.visa_error').html('').removeAttr('style').css('background-color', '');
+    $('.request_action_buttons').prop('disabled', false);
+});
+
+//To clone a new proof detail row
+$(document).on('click', '#add_proof_btn', function () {
+    let flag = true;
+    $('#proof-details-table').find('.proof-details-fields').each(function () {
+        if(!$(this).hasClass('not_required') && !$(this).val()){
+            flag = false;
+            $(this).addClass('has_error');
+        }
+        $(this).on('focus', () => $(this).removeClass('has_error'));
+    })
+    if(flag)
+        cloneRow();
+    else {
+        $('.alert-danger').show().find('.message').html('Please fill the proof details');
+        setTimeout( () => $('.alert-danger').hide(), 10000 );
+    }
+    $("#proof-details-table tbody tr:last .proof-details-fields[name='proof_request_for']").children().each(function () {
+        if($(this).val() != $('#request_for').val())
+            $(this).attr('disabled',true);
+    });
+});
+//To delete or update the proof details
+$(document).on('click', '.proof-action-btn', function () {
+    if($(this).hasClass('delete-btn'))
+    {
+        $('#add_proof_btn').closest('tfoot').show();
+        if($('#proof-details-table tbody').children().length > 1)
+            $(this).closest('tr').remove();                
+        else
+            $(this).closest('tr').find('.proof-details-fields').each(function () {
+                $(this).val(null);
+            })
+    }
+    if($(this).hasClass('.update-btn'))
+    {
+        //code here
+    }
+});
+//Fetch the proof details from DB
+function fetchProofDetails(request_for)
+{
+    var data = {
+        request_for: request_for,
+        module: $('#travel_request_for').val(),
+        origin: $('#origin').val(),
+    }
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+        url: '/list_respective_user_proof_details',
+        method: 'post',
+        data: data,
+        success: (response) => {
+            proof_details_visible_fields = response.visible_fields;
+            loadProofDetails(response,request_for);
+        },
+        error: () => alert("Error occured")
+    });
+}
+
+function travelDates(){
+  var from_date='';
+  var today = new Date();
+  $('input[name="from_date"]').datepicker({
+    startDate:today,
+    format: 'd-M-yyyy',
+    "autoclose": true,
+    onSelect: function (selected) {
+      var dt = new Date(selected.replace(/-/g, ''));
+      from_date = $(this).val();
+      setTimeout(function(){
+        $('input[name="to_date"]').datepicker( "setstartDate", dt );
+      },200);
+    }
+  }).on('changeDate',function(e){
+        var dt = e.date;
+        dt.setDate(dt.getDate());
+        from_date=$(this).val();
+        setTimeout(function(){$('input[name="to_date"]').datepicker( 'setStartDate', from_date);},200);
+     
+        if($.inArray($('#travel_type').find(":selected").val(),['TRV_02_01','TRV_01_01'])<0){
+        $('input[name="to_date"]').removeAttr('disabled');
+        }
+  })
+  $('input[name="to_date"]').datepicker({
+    startDate:from_date,
+    format: 'd-M-yyyy',
+    "autoclose": true,
+    onSelect: function (selected) {
+      var dt = new Date(selected.replace(/-/g, ''));
+      from_date = $(this).val();
+      setTimeout(function(){
+        $('input[name="from_date"]').datepicker( "setstartDate", dt );
+      },200);
+    }
+  }).on('changeDate',function(e){
+    var dt = e.date
+    setTimeout(function(){$('input[name="from_date"]').datepicker("setEndDate",dt);},200);
+  })
+}
+function multipleRouteDates(prevToDate,container){
+    var prevToDateObj = new Date(prevToDate);
+    prevToDateObj.setDate(prevToDateObj.getDate() + 1);
+    var from_date='';
+    container.find('input[name="from_date"]').datepicker({
+      startDate:prevToDateObj,
+      format: 'd-M-yyyy',
+      "autoclose": true,
+      onSelect: function (selected) {
+        var dt = new Date(selected.replace(/-/g, ''));
+        from_date = $(this).val();
+        container.find('input[name="to_date"]').datepicker('setStartDate', dt);
+        // setTimeout(function(){
+        //   $('input[name="to_date"]').datepicker( "setstartDate", dt );
+        // },200);
+      }
+    }).on('changeDate',function(e){
+          var dt = e.date;
+          dt.setDate(dt.getDate());
+          from_date=$(this).val();
+          container.find('input[name="to_date"]').datepicker('setStartDate', from_date);
+        //   setTimeout(function(){$('input[name="to_date"]').datepicker( 'setStartDate', from_date);},200);
+        if($.inArray($('#travel_type').find(":selected").val(),['TRV_02_01','TRV_01_01'])<0){
+            $('input[name="to_date"]').removeAttr('disabled');
+         }
+    })
+    console.log(from_date);
+    container.find('input[name="to_date"]').datepicker({
+      startDate:from_date,
+      format: 'd-M-yyyy',
+      "autoclose": true,
+      onSelect: function (selected) {
+        var dt = new Date(selected.replace(/-/g, ''));
+        from_date = $(this).val();
+        container.find('input[name="from_date"]').datepicker('setstartDate', dt);
+        // setTimeout(function(){
+        //   $('input[name="from_date"]').datepicker( "setstartDate", dt );
+        // },200);
+      }
+    }).on('changeDate',function(e){
+      var dt = e.date
+      container.find('input[name="from_date"]').datepicker('setEndDate', dt);
+    //   setTimeout(function(){$('input[name="from_date"]').datepicker("setEndDate",dt);},200);
+    })
+  }
+//To load the proof details in table
+function loadProofDetails(response,request_for)
+{
+    var proof_details = response.proof_details;
+    var visible_fields = response.visible_fields;
+
+    switch (request_for)
+    {
+        case "RF_01" :
+        case "RF_05" :
+            $('#dob').val(response['user_details']['dob']);
+            $('#traveler_email').val(response['user_details']['email']);
+            $('#traveler_address').val(response['user_details']['address']);
+            $('#phone_no').val(response['user_details']['phone_no']);
+            var is_found = response["mandatory_check"];
+            var defaultProofDetailsFields = ['proof_number', 'proof_name', 'proof_issue_date', 'proof_expiry_date', 'proof_issued_place'];
+            if(Object.keys(is_found).length)
+            {
+                $('#proof_error').show().text("Proof details are not found in IDM. Please contact your HR partner for further process");
+                $(document).find('.request_action_buttons').each(function () { $(this).attr('disabled',true); });
+            }
+            else
+            {
+                $('#proof_error').hide();
+                $(document).find('.request_action_buttons').each(function () { $(this).removeAttr('disabled'); });
+            }
+
+            $("#proof-details-table tbody tr:not(:first-child)").remove();
+            for(index=0; index < proof_details.length; index++)
+            {
+                if(index)
+                    cloneRow();
+                $(`#proof_type_${index+1}`).val(proof_details[index].proof_type).attr('disabled',true);
+                $(`#proof_request_for_${index+1}`).val(request_for).attr('disabled',true);
+                $(`#proof_number_${index+1}`).val(proof_details[index].proof_number).attr('disabled',true);
+                $(`#proof_name_${index+1}`).val(proof_details[index].proof_name).attr('disabled',true);
+                let issued_date = proof_details[index].proof_issue_date ? new Date(proof_details[index].proof_issue_date) : null;
+                $(`#proof_issue_date_${index+1}`).datepicker({"format": "dd-M-yyyy"}).datepicker("setDate", issued_date).attr('disabled',true);
+                let expiry_date = proof_details[index].proof_expiry_date ? new Date(proof_details[index].proof_expiry_date) : null;
+                $(`#proof_expiry_date_${index+1}`).datepicker({"format": "dd-M-yyyy"}).datepicker("setDate",expiry_date).attr('disabled',true);
+                $(`#proof_issued_place_${index+1}`).val(proof_details[index].proof_issued_place).attr('disabled',true);
+                $(".proof-action-btn-grp").hide();
+                $("#add_proof_btn").closest('tfoot').hide();
+                if(Object.keys(visible_fields).includes(proof_details[index].proof_type))
+                {
+                    let fieldsNeedToRemove = defaultProofDetailsFields.filter((e) => !visible_fields[proof_details[index].proof_type].includes(e));
+                    for(fields of fieldsNeedToRemove)
+                        $(`#${fields}_${index+1}`).val(null).addClass('not_required');
+                }
+            }
+            break;
+
+        case "RF_02" :
+        case "RF_06" :
+                if($('#travel_request_for').val() == 'MOD_01')
+                    relevent_request_for_self = 'RF_01';
+                else
+                    relevent_request_for_self = 'RF_05';
+                loadProofDetails(response,relevent_request_for_self);
+                cloneRow();
+                $("#proof-details-table tbody tr:last [name = 'proof_request_for']").children().each(function () {
+                    if($(this).val() != $('#request_for').val())
+                        $(this).attr('disabled',true);
+                    else
+                        $(this).removeAttr('disabled');
+                });
+                $('#add_proof_btn').closest('tfoot').show();
+                break;
+        case "RF_03":
+        case "RF_04":
+        case "RF_07":
+        case "RF_08":
+            $('#proof_error').text("").hide();
+            $("#proof-details-table tbody tr [name = 'proof_request_for']").children().each(function () {
+                if($(this).val() != $('#request_for').val())
+                    $(this).attr('disabled',true);
+                else
+                    $(this).removeAttr('disabled');
+            })
+            $('#proof-details-table tbody tr:not(:first)').remove();
+            $('.proof-details-fields').val(null).removeAttr('disabled');
+            $('#proof-details-table tbody tr .file-wrapper .file-info .info').empty();
+            $('.proof-action-btn-grp').show();
+            $('#add_proof_btn').closest('tfoot').show();
+            break;
+    }
+}
+//To clone a proof details row
+function cloneRow()
+{
+    let count = $('#proof-details-table tbody tr').length + 1;
+    $('#proof-details-table tbody tr:last').clone().appendTo('#proof-details-table');
+    $('#proof-details-table tbody tr:last .proof-details-fields').each(function () {
+        if($(this).attr('type') != 'hidden')
+        {
+            let idAttr = $(this).attr('id').replace(/.$/,count);
+            $(this).attr('id',idAttr);
+        }
+        $(this).val(null);
+        $(this).removeAttr('disabled');
+        $(this).closest('tr').find('.proof-action-btn-grp').show();
+        $(this).removeClass('not_required');
+    })
+    $('#proof-details-table tbody tr:last .file-info .info').text("");
+    $('#proof-details-table tbody tr:last .file-wrapper .file-upload-container').remove();
+    $('#proof-details-table tbody tr:last .custom-file-upload').data('count', 0);
+    let selectedValues = [];
+    $("#proof-details-table tbody tr .proof-details-fields[name='proof_type']").each(function () {
+        selectedValues.push($(this).val());
+    });
+    $("#proof-details-table tbody tr:last .proof-details-fields[name='proof_type']").children().each(function () {
+        if($('#request_for').val() == 'RF_02' || $('#request_for').val() == 'RF_06')
+            return;
+        if(selectedValues.includes($(this).val()))
+            $(this).attr('disabled',true);
+        else
+            $(this).removeAttr('disabled');
+    });
+    let flag = 0;
+    $("#proof-details-table tbody tr:last .proof-details-fields[name='proof_type']").children().each(function () {
+        if($(this).val() && !$(this).prop('disabled'))
+            flag++;
+    });
+    if(flag <= 1)
+        $('#add_proof_btn').closest('tfoot').hide();    
+}
+/*
+    Function used to clone international traveling details
+    Added by monisha.thirumalai
+*/
+function addNewRowTravel(){
+	$('#tr_details_row .select-plugin').select2("destroy");
+	var table_row_id = $('#tr_details_row tr:last').attr('id');
+    var row_count = table_row_id.split('-');
+    console.log(table_row_id);
+    row_count = parseInt(row_count[1])+1;
+	var new_row = $('#tr_details_row tr:last').clone();
+	new_row.attr('id', 'travelling_details-' + row_count);
+	new_row.attr('tr_row_id', '');
+	new_row.find('input[type=text],select').each(function() {
+		$(this).val('');
+		this.id = this.id.replace(/-\d+$/, '-' + row_count);
+    });
+	$('#tr_details_row .select-plugin').select2('');
+	new_row.find('.select-plugin').select2();
+    new_row.find('.select-plugin').select2('enable');
+    new_row.find('.to_country select').val('');
+    if (new_row.find('.to_country').length > 0) {
+        new_row.find('.to_city select option:not(:first-child)').remove();
+    }
+
+
+	$('#tr_details_row').append(new_row);
+    new_row.find(".to_city option").prop("disabled", false);
+    
+    
+    var prevToDate = $('#travelling_details-' + (row_count - 1)).find('input[name="to_date"]').val();
+    if(prevToDate){
+    var container = $('#travelling_details-' + row_count);
+        multipleRouteDates(prevToDate, container);
+        container.find('input[name="to_date"]').prop('disabled', true);
+    }
+    else
+    travelDates();
+}
+
+
+function projectLoad(){
+    //$('.ui-wait').show();
+	var department=$('#department option:selected').val();
+    $('#delivery_unit').removeAttr('disabled');
+	$('#customer_name').removeAttr('disabled');
+    if(department){
+    $("#project_name option:not(:first-child)").remove();
+    $("#delivery_unit option:not(:first-child)").remove();
+    $("#customer_name option:not(:first-child)").remove();
+    	$.ajaxSetup({
+		headers: {
+	   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		}
+	});
+	$.ajax({
+		type:'post',
+		url:'/load_project',
+		dataType: 'JSON',
+		data:{department:department},
+		success:function(response){
+            $('.ui-wait').hide();
+			projects=response.projects;
+			$.each(projects, function(key, value) {   
+				$('#project_name').append($("<option></option>").attr("value",key).text(value)); 
+		   });
+		},
+		error:function(error){
+            $('.ui-wait').hide();
+            console.log(error);
+		}
+	});
+}}
+function customerLoad(){
+    //$('.ui-wait').show();
+	var department=$('#department option:selected').val();
+	var project=$('#project_name option:selected').val();
+    $('#delivery_unit').removeAttr('disabled');
+	$('#customer').removeAttr('disabled');
+
+	if(department && project){
+        $("#customer_name option:not(:first-child)").remove();
+        $("#delivery_unit option:not(:first-child)").remove();
+
+	$.ajaxSetup({
+		headers: {
+	   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		}
+	});
+	$.ajax({
+		type:'post',
+		url:'/load_customer_du',
+		dataType: 'JSON',
+		data:{department:department,project:project},
+		success:function(response){
+            $('.ui-wait').hide();
+			customers=response.customer;
+            delivery=response.delivery;
+			if(delivery.length==0)
+                $('#delivery_unit').attr('disabled','disabled');
+			$.each(customers, function(key, value) {   
+				$('#customer_name').append($("<option></option>").attr("value",key).text(value));
+                if (Object.keys(customers).length == 1) {
+                    $('#customer_name').val(Object.keys(customers)[0]);
+                    $("#customer_name option[value='"+key+"']").attr('selected',true);
+                    $('#customer_name').attr('disabled','diabled');
+                    $('#customer_name').parent().find('.select2-container').removeClass('has_error');
+                }	   
+            }); 
+            if(delivery.length==0)
+                $('#delivery_unit').attr('disabled','disabled');
+            $.each(delivery, function(key, value) {  
+                $('#delivery_unit').append($("<option></option>").attr("value",key).text(value)); 
+                if(Object.keys(delivery).length==1){
+                $("#delivery_unit option[value='"+key+"']").attr('selected',true);
+                $('#delivery_unit').attr('disabled','disabled');
+	            $('#customer_name').attr('disabled','diabled');
+                $('#delivery_unit').parent().find('.select2-container').removeClass('has_error');
+
+                }
+	        });
+		},
+		error:function(error){
+            $('.ui-wait').hide();
+			console.log(error);
+		}
+	});
+}
+}
+/** To close the alert boxes */
+$(document).on('click','.alert .close-btn', function () {
+    $(this).parent().hide();
+});
+
+// File upload related changes
+$(document).on('click', '.upload-icon', function () {
+  if($(this).closest('.file-wrapper').find("[name='proof_file_path']").val())
+      return;
+  $(this).closest('.file-wrapper').find('.custom-file-upload').trigger('click');
+});
+$(document).on('input','.custom-file-upload', function () {
+    if(!$(this).data('count'))
+        $(this).data('count',0);
+    uploadFile($(this));
+  })
+  
+  $(document).on('click', '.file-remove', function () {
+    var data = {filePath: $(this).closest('.row-item').find('.file-name a').attr('href') };
+    if($('#edit_id').val() != '')
+        data['edit_id'] = $('#edit_id').val();
+    deleteFile(data, $(this));
+  });
+  
+  $(document).on('click', '.file-info .info', function () {
+    let container = $(this).closest('.file-wrapper').find('.file-upload-container');
+    if(container.length)
+    {
+        if(container.hasClass('show'))
+            container.removeClass('show');
+        else
+            container.addClass('show');
+        }
+  });
+  $(document).on('change', "[name='proof_type']", function () {
+    let visible_fields = proof_details_visible_fields[$(this).val()].concat(['proof_type','proof_request_for']);
+    console.log(visible_fields);
+    $(this).closest('tr').find('.proof-details-fields').each(function () {
+        if(!visible_fields.includes($(this).attr('name')))
+        {
+            $(this).addClass('not_required');
+            $(this).attr('disabled', true);
+        }
+        else
+        {
+            $(this).removeClass('not_required');
+            $(this).removeAttr('disabled');
+        }
+    }); 
+
+  });
+  function  request_for(module_name){
+    $.ajaxSetup({
+		headers: {
+	   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		}
+	});
+	$.ajax({
+        type:'get',
+		url:'/get_request_for',
+		dataType: 'JSON',
+		data:{module_name},
+		success:function(response){
+            $('#request_for').find('option').not(':first').remove();
+            $.each(response['request_for'],function(key,value){
+                if(value!="" && value!=null)
+                $('#request_for').append("<option value="+key+" >"+value+"</option>");
+                });
+                $('#travel_type').find('option').not(':first').remove();
+                $.each(response['travel_type'],function(key,value){
+                    if(value!="" && value!=null)
+                    $('#travel_type').append("<option value="+key+" >"+value+"</option>");
+                    });
+		},
+		error:function(error){
+            $('.ui-wait').hide();
+			console.log(error);
+		}
+    });
+
+  }
+$(document).on('change','select[name=master_category]',function(){
+    var edit_id = $('#edit_id').val();
+    var select_el = $(this);
+    var name = $(this).attr('name');
+    var dependent_field = $(this).attr('dependent_field');
+    var value = $(this).val();
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+        type:'POST',
+        data:{name:name,value:value,request_id:edit_id},
+        url:'/load_related_select_options',          
+        success:function(result){
+            var selector = select_el.closest('tr').find("select[name="+dependent_field+"]");
+            selector.each(function(){
+                var current_element = $(this);
+                current_element.select2("destroy");
+                current_element.find('option:not(:first-child)').remove();
+                $.each(result, function(key, value) {
+                    current_element.append("<option value=" + key + ">" + value + "</option>");
+                });
+                current_element.select2();
+                
+            })
+            console.log(result);
+        },
+        error:function()
+        {
+            alert('Error occured..');
+        }
+     });
+});
+
+function dateFieldChangeBasedONTraveltype(){
+    var travel_type=$("#travel_type option:selected").text();
+    $('input[name="from_date"]').val('');
+    $('input[name="to_date"]').val('');
+    $('input[name="from_date"]').prop('disabled', false);
+    $('input[name="to_date"]').prop('disabled', true);
+    if(travel_type=="One-way"){
+        $('.add_img').addClass('disabled');
+        $('.remove_img').addClass('disabled');
+        $('input[name="to_date"]').prop('disabled', true);
+        $("#tr_details_row").find("tr:gt(0)").remove(); 
+    }else if(travel_type=="Return"){
+        $('.add_img').addClass('disabled');
+        $('.remove_img').addClass('disabled');
+        $("#tr_details_row").find("tr:gt(0)").remove();
+    }else if(travel_type=="Multiple Route"){
+        $('.add_img').removeClass('disabled');
+        $('.remove_img').removeClass('disabled');
+    }
+}
+function load_details(){
+    $('.ui-wait').show();
+    var project=$('#project_name option:selected').val();
+    $('#department').removeAttr('disabled');
+	$('#customer_name').removeAttr('disabled');
+    $('#delivery_unit').removeAttr('disabled');
+    if(project){
+    $("#department option:not(:first-child)").remove();
+    $("#delivery_unit option:not(:first-child)").remove();
+    $("#customer_name option:not(:first-child)").remove();
+    }
+    $.ajaxSetup({
+		headers: {
+	   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+		}
+	});
+	$.ajax({
+		type:'post',
+		url:'load_project_details',
+		dataType: 'JSON',
+		data:{project:project},
+		success:function(response){
+            $('.ui-wait').hide();
+            department=response.department;
+            customers=response.customer;
+            delivery=response.delivery_unit;
+            selected_department=response.selected_department;
+			$.each(department, function(key, value) {   
+				$('#department').append($("<option></option>").attr("value",key).text(value));
+                $("#department option[value='"+selected_department+"']").attr('selected',true);
+                if(Object.keys(department).length==1){
+                    $("#department option[value='"+key+"']").attr('selected',true);
+                    $('#department').attr('disabled','diabled');
+                    $('#department').parent().find('.select2-container').removeClass('has_error');
+                }
+		    });
+            $.each(customers, function(key, value) {   
+                $('#customer_name').append($("<option></option>").attr("value",key).text(value));
+                $("#customer_name option[value='"+key+"']").attr('selected',true);
+                $('#customer_name').attr('disabled','diabled');
+                $('#customer_name').parent().find('.select2-container').removeClass('has_error');	   
+            }); 
+            if(delivery.length==0)
+            $('#delivery_unit').attr('disabled','disabled');
+            $.each(delivery, function(key, value) {  
+                $('#delivery_unit').append($("<option></option>").attr("value",key).text(value)); 
+                if(Object.keys(delivery).length==1){
+                $("#delivery_unit option[value='"+key+"']").attr('selected',true);
+                $('#delivery_unit').attr('disabled','diabled');
+                $('#delivery_unit').parent().find('.select2-container').removeClass('has_error');
+                }
+            });
+            
+        }
+    });
+
+    
+}

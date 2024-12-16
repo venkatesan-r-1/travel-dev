@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <filter id="Rectangle_9" x="0" y="0" width="48" height="48" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="list-view" transform="translate(-58 -388)">
+    <g transform="matrix(1, 0, 0, 1, 58, 388)" filter="url(#Rectangle_9)">
+      <rect id="Rectangle_9-2" data-name="Rectangle 9" width="30" height="30" rx="5" transform="translate(9 6)" fill="#fff"/>
+    </g>
+    <g id="list" transform="translate(70 397)">
+      <rect id="Rectangle_10" data-name="Rectangle 10" width="24" height="24" transform="translate(24 24) rotate(180)" fill="#8347ad" opacity="0"/>
+      <circle id="Ellipse_2" data-name="Ellipse 2" cx="1" cy="1" r="1" transform="translate(3 6)" fill="#8347ad"/>
+      <circle id="Ellipse_3" data-name="Ellipse 3" cx="1" cy="1" r="1" transform="translate(3 11)" fill="#8347ad"/>
+      <circle id="Ellipse_4" data-name="Ellipse 4" cx="1" cy="1" r="1" transform="translate(3 16)" fill="#8347ad"/>
+      <rect id="Rectangle_11" data-name="Rectangle 11" width="14" height="2" rx="0.94" transform="translate(7 11)" fill="#8347ad"/>
+      <rect id="Rectangle_12" data-name="Rectangle 12" width="14" height="2" rx="0.94" transform="translate(7 16)" fill="#8347ad"/>
+      <rect id="Rectangle_13" data-name="Rectangle 13" width="14" height="2" rx="0.94" transform="translate(7 6)" fill="#8347ad"/>
+    </g>
+  </g>
+</svg>
