@@ -35,17 +35,17 @@ class oldDataCron extends Command
             $need_to_truncate = $this->argument('delete') == 1 ? true : false;
             if($need_to_truncate) $this->truncate_config_tables();
             $this->info("Start time : ".now());
-            $old_travel_details = $this->get_old_travel_details();
+            $old_travel_details = $this->get_travel_details();
             DB::beginTransaction();
             foreach($old_travel_details as $travel_details) {
                 $data = array_filter($travel_details);
                 $request_id = DB::table('trf_travel_request')->insertGetId(Arr::except($data, 'id'));
-                $traveling_details = $this->get_old_traveling_details($data['id'], $request_id, $data['module'], $data['travaler_id']);
-                $other_details = $this->get_old_other_details($data['id'], $request_id, $data['module']);
-                $proof_file_details = $this->get_old_proof_file_details($data['id'], $request_id, $data['module']);
-                // $approval_flow = $this->get_old_approval_flow($data['id'], $request_id, $data['module']);
-                $status_details = $this->get_old_status_details($data['id'], $request_id, $data['module']);
-                $forex_load_details = $this->get_old_forex_load_details($data['request_id'], $request_id);
+                $traveling_details = $this->get_traveling_details($data['id'], $request_id, $data['module'], $data['travaler_id']);
+                $other_details = $this->get_other_travel_details($data['id'], $request_id, $data['module']);
+                $proof_file_details = $this->get_proof_file_details($data['id'], $request_id, $data['module']);
+                $approval_matrix_details = $this->get_approval_matrix_details($data['id'], $request_id);
+                $status_details = $this->get_status_details($data['id'], $request_id, $data['status_id']);
+                $forex_load_details = $this->get_forex_load_details($data['request_id'], $request_id);
                 if(!empty($traveling_details))
                     DB::table('trf_traveling_details')->insert($traveling_details);
                 if(!empty($other_details))
@@ -60,11 +60,12 @@ class oldDataCron extends Command
                         }
                     }
                 }
+                if(!empty($approval_matrix_details))
+                    DB::table('trf_approval_matrix_tracker')->insert($approval_matrix_details);
                 if(!empty($status_details))
                     DB::table('trf_request_status_tracker')->insert($status_details);
                 if(!empty($forex_load_details)) 
                     DB::table('trf_forex_load_details')->insert($forex_load_details);
-
             }
             DB::commit();
             $this->info("End time : ".now());
@@ -85,7 +86,7 @@ class oldDataCron extends Command
      * 
      * @return array
      */
-    public function get_old_travel_details()
+    public function get_travel_details()
     {
         try {
             $connection = DB::connection('old_db');
@@ -160,7 +161,7 @@ class oldDataCron extends Command
      * 
      * @return array
      */
-    public function get_old_traveling_details($old_request_id, $new_request_id, $module, $traveler)
+    public function get_traveling_details($old_request_id, $new_request_id, $module, $traveler)
     {
         try {
             $connection = DB::connection('old_db');
@@ -220,7 +221,7 @@ class oldDataCron extends Command
      * 
      * @return array
      */
-    public function get_old_other_details($old_request_id, $new_request_id, $module)
+    public function get_other_travel_details($old_request_id, $new_request_id, $module)
     {
         try {
             $connection = DB::connection('old_db');
@@ -276,7 +277,7 @@ class oldDataCron extends Command
      * 
      * @return array
      */
-    public function get_old_proof_file_details($old_request_id, $new_request_id, $module)
+    public function get_proof_file_details($old_request_id, $new_request_id, $module)
     {
         try {
             $connection = DB::connection('old_db');
@@ -364,69 +365,190 @@ class oldDataCron extends Command
         }
     }
     /**
+     * To get the old approval matrix tracker details in new format
+     * @author venkatesan.raj
+     * 
+     * @param string $old_request_id
+     * @param string $new_request_id
+     * 
+     * @return array
+     */
+    public function get_approval_matrix_details($old_request_id, $new_request_id)
+    {
+        try {
+            $connection = DB::connection('old_db');
+            $request_id = $new_request_id;
+            $level_order = '"'.implode('", "', $this->get_key_mapping('level_order') ).'"';
+            $flow_codes = $this->get_key_mapping('flow_code');
+            $approval_details = $connection->table('approval_configured_users')->where('travel_request_id', $old_request_id)->orderByRaw("FIELD(level_name, $level_order)")->get()->toArray();
+            $approval_matrix = [];
+            foreach($approval_details as $ad) {
+                $approval_matrix[] =  [
+                    'request_id' => $request_id,
+                    'flow_code' => isset($flow_codes[$ad->level_name]) ? $flow_codes[$ad->level_name] : null,
+                    'respective_role_or_user' => $ad->configured_approver,
+                    'is_completed' => $ad->is_reviewed,
+                    'comments' => $ad->comments,
+                    'active' => 1,
+                    'created_at' => isset($ad->created_at) ? date('Y-m-d h:i:s', strtotime($ad->created_at)) : null,
+                    'updated_at' => isset($ad->updated_at) ? date('Y-m-d h:i:s', strtotime($ad->updated_at)) : null
+                ];
+            }
+            $ticket_processed = $this->is_ticket_processed($old_request_id);
+            $forex_processed = $this->is_forex_processed($old_request_id);
+            if($this->is_ticket_required($old_request_id)){
+                $process_details = $connection->table('request_status_details')->where([['travel_request_id', $request_id],['status_id', 9 ]])->first();
+                $comments = $process_details ? $process_details->comments : null;
+                $created_at = $updated_at = $process_details ? ( $process_details->updated_on ? date('Y-m-d h:i:s', strtotime($process_details->updated_on)) : null ) : null;
+                $approval_matrix[] = [
+                    'request_id' => $request_id,
+                    'flow_code' => 'TRV_PROC_TICKET',
+                    'respective_role_or_user' => 'TRV_PROC_TICKET',
+                    'is_completed' => $ticket_processed ? 1 : 0,
+                    'comments' => $comments,
+                    'active' => 1,
+                    'created_at' => $created_at,
+                    'updated_at' => $updated_at
+                ];
+            }
+            if($this->is_forex_required($old_request_id)){
+                $process_details = $connection->table('request_status_details')->where([['travel_request_id', $request_id],['status_id', 10 ]])->first();
+                $comments = $process_details ? $process_details->comments : null;
+                $created_at = $updated_at = $process_details ? ( $process_details->updated_on ? date('Y-m-d h:i:s', strtotime($process_details->updated_on)) : null ) : null;
+                $approval_matrix[] = [
+                    'request_id' => $request_id,
+                    'flow_code' => 'TRV_PROC_FOREX',
+                    'respective_role_or_user' => 'TRV_PROC_FOREX',
+                    'is_completed' => $forex_processed ? 1 : 0,
+                    'comments' => $comments,
+                    'active' => 1,
+                    'created_at' => $created_at,
+                    'updated_at' => $updated_at
+                ];
+            }
+            return $approval_matrix;
+        } catch (\Exception $e) {
+            Log::error("Error occured in ".__FUNCTION__." : ".$e->getMessage());
+            throw $e;
+        }
+    }
+    /**
      * To get the old status tracker details in new format
      * @author venkatesan.raj
      * 
      * @param string $old_request_id
      * @param string $new_request_id
-     * @param string $module
+     * @param string $status_id
      * 
      * @return array
      */
-    public function get_old_status_details($old_request_id, $new_request_id)
+    public function get_status_details($old_request_id, $new_request_id, $status_id)
     {
         try {
             $connection = DB::connection('old_db');
             $request_id = $new_request_id;
-            // approval flow
-            $level_order = implode('", "', ['project_owner', 'du_owner', 'dept_head', 'client_partner', 'geo_owner', 'super_head']);
-            $approver_details = $connection->table('approval_configured_users')->where('travel_request_id', $request_id)->orderByRaw('FIELD(level_name, ?)',[$level_order])->get()->toArray();
-            $flow_code_list = $this->get_key_mapping('flow_code');
-            $approval_matrix_details = [];
-            foreach($approver_details as $ad) {
-                $flow_code = isset($flow_code_list[$ad->level_name]) ? $flow_code_list[$ad->level_name] : null;
-                $is_completed = $ad->is_reviewed;
-                $approval_matrix_details[] = [
-                    'request_id' => $request_id,
-                    'flow_code' => $flow_code,
-                    'respective_role_or_user' => $ad->configured_approver,
-                    'is_completed' => $ad->is_reviewed,
-                    'comments' => $ad->comments,
-                    'active' => 1,
-                    'created_at' => $ad->created_at ? date('Y-m-d h:i:s', strtotime($ad->created_at)) : null,
-                    'updated_at' => $ad->updated_at ? date('Y-m-d h:i:s', strtotime($ad->updated_at)) : null,
-                ];
-            }
-            // ends here
-            $old_status_code = $new_status_code = 'STAT_12';
-            $vtf_status_details = $connection->table('vtf_status_details as vsd')
-                                            ->leftJoin('users as u', 'u.user_name', 'vsd.added_by')
-                                            ->select('vsd.*', 'u.aceid as created_by')
-                                            ->where('travel_request_id', $old_request_id)
-                                            ->get()->toArray();
-            $new_status_details = [];
-            foreach($vtf_status_details as $status_details) {
-                $activity = $status_details->activity;
-                if($activity == 'ticket')
-                    $action = 'save_ticket_process';
-                if($activity == 'forex')
-                    $action = 'save_forex_process';
-                if($activity == 'visa')
-                    continue;
+            $level_order = '"'.implode('", "', $this->get_key_mapping('level_order') ).'"';
+            $status_mapping = $this->get_key_mapping('status_mapping');
+            $approval_details = $connection->table('approval_configured_users')->where([['travel_request_id', $old_request_id],['is_reviewed', 1]])->orderByRaw("FIELD(level_name, $level_order)")->get()->toArray();
+            $travel_details = $connection->table('travel_request as tr')
+                                            ->leftJoin('users as u', 'u.id', 'tr.requestor_id')
+                                            ->select('tr.*', 'u.aceid as created_by')
+                                            ->where('tr.id', $old_request_id)->first();
+            $created_at = $updated_at = $travel_details->requested_on ? date('Y-m-d h:i:s', strtotime($travel_details->requested_on)) : null;
+            $old_status_code = '0'; $new_status_code = 'STAT_01'; $action = 'save';
+            $new_status_details[] = [
+                'request_id' => $request_id,
+                'old_status_code' => $old_status_code,
+                'new_status_code' => $new_status_code,
+                'action' => $action,
+                'billed_to_client' => null,
+                'comments' => $travel_details->comment,
+                'created_by' => $travel_details->created_by,
+                'active' => 1,
+                'created_at' => $created_at,
+                'updated_at' => $updated_at
+            ];
+            $level_name = null; $last_key = null;
+            foreach($approval_details as $ad) {
+                $level_name = $ad->level_name;
+                $new_status_code = isset($status_mapping[$level_name]) ? $status_mapping[$level_name] : $new_status_code;
+                $last_key = array_key_last($new_status_details); $action = $this->get_action_value($old_status_code, $new_status_code);
+                $new_status_details[$last_key]['new_status_code'] = $new_status_code;
+                $new_status_details[$last_key]['action'] = $action;
+                $old_status_code = $new_status_code;
+                $comments = $ad->comments;
+                $created_by = $ad->configured_approver;
+                $created_at = $ad->created_at ? date('Y-m-d h:i:s', strtotime($ad->created_at)) : null;
+                $updated_at = $ad->created_at ? date('Y-m-d h:i:s', strtotime($ad->created_at)) : null;
                 $new_status_details[] = [
                     'request_id' => $request_id,
                     'old_status_code' => $old_status_code,
                     'new_status_code' => $new_status_code,
                     'action' => $action,
+                    'billed_to_client' => $ad->billable_or_not,
+                    'comments' => $comments,
+                    'created_by' => $created_by,
                     'active' => 1,
-                    'created_by' => $status_details->created_by,
-                    'comments' => $status_details->comment,
-                    'created_at' => $status_details->added_on ? date('Y-m-d h:i:s', strtotime($status_details->added_on)) : null,
-                    'updated_at' => $status_details->added_on ? date('Y-m-d h:i:s', strtotime($status_details->added_on)) : null
+                    'created_at' => $created_at,
+                    'updated_at' => $updated_at
                 ];
+                
+            }
+            if( isset( $reject_status_mapping[$level_name] ) && $reject_status_mapping[$level_name] == $status_id ) {
+                $last_key = array_key_last($new_status_details);
+                $action = $this->get_action_value($old_status_code, $status_id);
+                $new_status_details[$last_key]['new_status_code'] = $status_id;
+                $new_status_details[$last_key]['action'] = $action;
+            } else {
+                $last_key = array_key_last($new_status_details);
+                $action = $this->get_action_value($old_status_code, $status_id);
+                $new_status_code = $status_id == 'STAT_13' ? 'STAT_12' : $status_id;
+                $new_status_details[$last_key]['new_status_code'] = $new_status_code;
+                $new_status_details[$last_key]['action'] = $action;
+                $old_status_code = $new_status_code;
+            }
+            $vtf_status_details = $connection->table('vtf_status_details as vsd')
+                                                ->leftJoin('users as u', 'u.user_name', 'vsd.added_by')
+                                                ->select('vsd.*', 'u.aceid as created_by')
+                                                ->where('vsd.travel_request_id', $old_request_id)->whereIn('vsd.activity', ['ticket', 'forex'])
+                                                ->orderBy('id')->get()->toArray();
+            $last_process = collect($vtf_status_details)->pluck('id')->last();
+            $last_ticket_process = collect($vtf_status_details)->filter(fn($e) => $e->activity == 'ticket')->pluck('id')->last();
+            $last_forex_process = collect($vtf_status_details)->filter(fn($e) => $e->activity == 'forex')->pluck('id')->last();
+            $ticket_processed = $this->is_ticket_processed($old_request_id);
+            $forex_processed = $this->is_forex_processed($old_request_id);
+            foreach($vtf_status_details as $vsd) {
+                $new_status_code = 'STAT_12';
+                if( $ticket_processed && $forex_processed && $vsd->id == $last_process )
+                    $new_status_code = 'STAT_13';
+                $action = $this->get_action_value($old_status_code, $new_status_code);
+                if($action == 'process') {
+                    if($vsd->id == $last_ticket_process)
+                        $action = 'ticket_process';
+                    else if($vsd->id == $last_forex_process)
+                        $action = 'forex_process';
+                    else
+                        $action = $vsd->activity == 'ticket' ? 'save_ticket_process' : 'save_forex_process';
+                }
+                $last_key = array_key_last($new_status_details); $action = $this->get_action_value($old_status_code, $new_status_code);
+                $new_status_details[$last_key]['new_status_code'] = $new_status_code;
+                $new_status_details[$last_key]['action'] = $action;
+                $created_at = $updated_at = $vsd->added_on ? date('Y-m-d h:i:s', strtotime($vsd->added_on)) : null;
+                $new_status_details[] = [
+                    'request_id' => $request_id,
+                    'old_status_code' => $old_status_code,
+                    'new_status_code' => $new_status_code,
+                    'action' => $action,
+                    'billed_to_client' => null,
+                    'comments' => $vsd->comment,
+                    'active' => 1,
+                    'created_by' => $vsd->created_by,
+                    'created_at' => $created_at,
+                    'updated_at' => $updated_at
+                ];
+                $old_status_code = $new_status_code;                    
             }
             return $new_status_details;
-            
         } catch (\Exception $e) {
             Log::error("Error occured in ".__FUNCTION__." : ".$e->getMessage());
             throw $e;
@@ -442,7 +564,7 @@ class oldDataCron extends Command
      * 
      * @return array
      */
-    public function get_old_forex_load_details($old_request_id, $new_request_id)
+    public function get_forex_load_details($old_request_id, $new_request_id)
     {
         try {
             $connection = DB::connection('old_db');
@@ -610,6 +732,7 @@ class oldDataCron extends Command
                     'project_owner' => 'PRO_OW',
                     'super_head' => 'FIN_APP',
                 ],
+                'level_order' => ['project_owner', 'du_owner', 'dept_head', 'client_partner', 'geo_owner', 'super_head'],
                 'status_id' => [
                     1 => 'STAT_10',
                     2 => 'STAT_12',
@@ -627,6 +750,38 @@ class oldDataCron extends Command
                     14 => 'STAT_11',
                     15 => 'STAT_19',
                     16 => 'STAT_21',
+                ],
+                'status_mapping' => [
+                    'project_owner' => 'STAT_04',
+                    'du_owner' => 'STAT_08',
+                    'dept_head' => 'STAT_10',
+                    'client_partner' => 'STAT_24',
+                    'geo_owner' => 'STAT_25',
+                    'super_head' => 'STAT_11'
+                ],
+                'reject_status_mapping' => [
+                    'project_owner' => 'STAT_17',
+                    'du_owner' => 'STAT_19',
+                    'dept_head' => 'STAT_21',
+                    'client_partner' => 'STAT_26',
+                    'geo_owner' => 'STAT_27',
+                    'super_head' => 'STAT_22'
+                ],
+                'status_action_mapping' => [
+                    'submit' => ['old_status_code' => '0', 'new_status_code' => 'STAT_04|STAT_08|STAT_10|STAT_11|STAT_24|STAT_25'],
+                    'project_owner_approve' => ['old_status_code' => 'STAT_04', 'new_status_code' => 'STAT_08|STAT_10|STAT_11|STAT_12'],
+                    'project_owner_reject' => ['old_status_code' => 'STAT_04', 'new_status_code' => 'STAT_17'],
+                    'du_head_approve' => ['old_status_code' => 'STAT_08', 'new_status_code' => 'STAT_10|STAT_11|STAT_12'],
+                    'du_head_reject' => ['old_status_code' => 'STAT_08', 'new_status_code' => 'STAT_19'],
+                    'bu_head_approve' => ['old_status_code' => 'STAT_10', 'new_status_code' => 'STAT_11|STAT_12' ],
+                    'bu_head_reject' => ['old_status_code' => 'STAT_10', 'new_status_code' => 'STAT_21'],
+                    'cp_approve' => ['old_status_code' => 'STAT_24', 'new_status_code' => 'STAT_25|STAT_11|STAT_12'],
+                    'cp_reject' => ['old_status_code' => 'STAT_24', 'new_status_code' => 'STAT_26'] ,
+                    'geo_head_approve' => ['old_status_code' => 'STAT_25', 'new_status_code' => 'STAT_11|STAT_12'],
+                    'geo_head_reject' => ['old_status_code' => 'STAT_25', 'new_status_code' => 'STAT_27'],
+                    'fin_approve'  => ['old_status_code' => 'STAT_11', 'new_status_code' => 'STAT_12'],
+                    'fin_reject' => ['old_status_code' => 'STAT_11', 'new_status_code' => 'STAT_22'],
+                    'process' => ['old_status_code' => 'STAT_12', 'new_status_code' => 'STAT_12|STAT_13'],
                 ],
                 default => []
             };
@@ -768,8 +923,8 @@ class oldDataCron extends Command
         try {   
             $connection = DB::connection('old_db');
             $status_list = $this->get_key_mapping('status_id');
-            $level_order = "'".implode("', '", ['project_owner', 'du_owner', 'dept_head', 'client_partner', 'geo_owner', 'super_head'])."'";
-            $status_mapping = ['project_owner' => 'STAT_04', 'du_owner' => 'STAT_08', 'dept_head' => 'STAT_10', 'client_partner' => 'STAT_24', 'geo_owner' => 'STAT_25', 'super_head' => 'STAT_11'];
+            $level_order = "'".implode("', '", $this->get_key_mapping('level_order'))."'";
+            $status_mapping = $this->get_key_mapping('status_mapping');
             if($status_id == 1) {
                 $level_name = $connection->table('approval_configured_users')->where([['travel_request_id', $request_id], ['is_reviewed', 0]])->orderByRaw("FIELD('level_name', $level_order)")->value('level_name');
                 $new_status_code = isset($status_mapping[$level_name]) ? $status_mapping[$level_name] : 'STAT_10';
@@ -829,6 +984,116 @@ class oldDataCron extends Command
             throw $e;
         }
     }
+    /**
+     * To find the action name for status tracker
+     * @author venkatesan.raj
+     * 
+     * @param string $old_status_code
+     * @param string $new_status_code
+     * 
+     * @return string
+     */
+    public function get_action_value($old_status_code, $new_status_code)
+    {
+        try {
+            $status_action_mapping = $this->get_key_mapping('status_action_mapping');
+            $status_action_mapping = collect($status_action_mapping)->search( fn($e) => $e['old_status_code'] == $old_status_code && in_array($new_status_code,  explode('|', $e['new_status_code'])) );
+            return $status_action_mapping;
+        } catch (\Exception $e) {
+            Log::error("Error occured in ".__FUNCTION__." : ".$e->getMessage());
+            throw $e;   
+        }
+    }
+    /**
+     * To check whether the ticket is required or not
+     * @author venkatesan.raj
+     * 
+     * @param $request_id
+     * 
+     * @return bool
+     */
+    public function is_ticket_required($request_id)
+    {
+        try {
+            $connection = DB::connection('old_db');
+            $is_domestic = $connection->table('travel_request')->where('id', $request_id)->value('is_domestic');
+            if($is_domestic) {
+                return $connection->table('domestic_other_travel_details')->where([['travel_request_id', $request_id],['ticket_required', '1']])->exists();
+            } else {
+                return $connection->table('traveling_details')->where([['travel_request_id', $request_id],['ticket_required', '1']])->exists();
+            }
+            return $connection->table('request_status_details')->where([['travel_request_id', $request_id],['status_id', 9]])->exists();
+            
+        } catch (\Exception $e) {
+            Log::error("Error occured in ".__FUNCTION__." : ".$e->getMessage());
+            throw $e;
+        }
+    }
+    /**
+     * To check whether the ticket is processed or not
+     * @author venkatesan.raj
+     * 
+     * @param $request_id
+     * 
+     * @return bool
+     */
+    public function is_ticket_processed($request_id)
+    {
+        try {
+            $connection = DB::connection('old_db');
+            if(!$this->is_ticket_required($request_id))
+                return true;
+            return $connection->table('request_status_details')->where([['travel_request_id', $request_id],['status_id', 9]])->exists();
+        } catch (\Exception $e) {
+            Log::error("Error occured in ".__FUNCTION__." : ".$e->getMessage());
+            throw $e;
+        }
+    }
+    /**
+     * To check whether the forex is required or not
+     * @author venkatesan.raj
+     * 
+     * @param $request_id
+     * 
+     * @return bool
+     */
+    public function is_forex_required($request_id)
+    {
+        try {
+            $connection = DB::connection('old_db');
+            $is_domestic = $connection->table('travel_request')->where('id', $request_id)->value('is_domestic');
+            if($is_domestic) {
+                return false;
+            } else {
+                return $connection->table('other_traveler_details')->where([['travel_request_id', $request_id],['forex_required', '1']])->exists();
+            }
+        } catch (\Exception $e) {
+            Log::error("Error occured in ".__FUNCTION__." : ".$e->getMessage());
+            throw $e;
+        }
+    }
+    /**
+     * To check whether the forex is processed or not
+     * @author venkatesan.raj
+     * 
+     * @param $request_id
+     * 
+     * @return bool
+     */
+    public function is_forex_processed($request_id)
+    {
+        try {
+            $connection = DB::connection('old_db');
+            if(!$this->is_forex_required($request_id))
+                return true;
+            return $connection->table('request_status_details')->where([['travel_request_id', $request_id],['status_id', 10]])->exists();
+            
+        } catch (\Exception $e) {
+            Log::error("Error occured in ".__FUNCTION__." : ".$e->getMessage());
+            throw $e;
+        }
+    }
+    // need to removed
     public function truncate_config_tables ()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -838,6 +1103,7 @@ class oldDataCron extends Command
         DB::table('trf_request_proof_file_details')->truncate();
         DB::table('trf_travel_request_proof_details')->truncate();
         DB::table('trf_request_status_tracker')->truncate();
+        DB::table('trf_approval_matrix_tracker')->truncate();
         DB::table('trf_forex_load_details')->truncate();
     }
 }
